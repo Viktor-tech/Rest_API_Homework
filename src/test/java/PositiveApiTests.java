@@ -1,7 +1,6 @@
 import io.restassured.http.ContentType;
 import org.apache.http.HttpStatus;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,40 +8,36 @@ import java.util.Map;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
-public class GetUserList {
+public class PositiveApiTests {
+
     @Test
-    @DisplayName("Get list of users")
+    @DisplayName("Get list of users and receive response with status code 200")
     public void getListOfUsersInJson() {
         given()
-                .log().all()
-                .accept(ContentType.JSON)
                 .when()
                 .get("https://reqres.in/api/users?page=2")
                 .then()
-                .log().all()
                 .statusCode(HttpStatus.SC_OK)
                 .contentType(ContentType.JSON)
                 .body(not(emptyOrNullString()));
     }
 
     @Test
-    @DisplayName("Get list of users / negative test / Try POST, PUT, DELETE")
-    public void tryPostPutDelete() {
+    @DisplayName("Post new user and receive response with status code 201")
+    public void postNewUser() {
         Map<String, String> requestBody = new HashMap<>();
         requestBody.put("name", "Jason");
         requestBody.put("job", "actor");
-
         given()
-                .log().all()
                 .contentType(ContentType.JSON)
                 .body(requestBody)
                 .when()
-                .delete("https://reqres.in/api/users")
+                .post("https://reqres.in/api/users")
                 .then()
-                .log().all()
                 .statusCode(HttpStatus.SC_CREATED)
                 .contentType(ContentType.JSON)
-                .body(not(emptyOrNullString()));
+                .body(not(emptyOrNullString()))
+                .body("name", equalTo("Jason"),
+                        "job", equalTo("actor"));
     }
-
 }
